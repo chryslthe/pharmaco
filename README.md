@@ -135,6 +135,9 @@ https://www.ensembl.org/Homo_sapiens/Tools/VEP
 - найденные маркеры;
 - покрытие вариантов.
 
+<img width="1437" height="596" alt="image" src="https://github.com/user-attachments/assets/f310cbf1-987b-4ba8-893d-aed4d6e831dc" />
+
+
 ### `variant_coverage_report.csv`
 
 Отчет о том, какие варианты из базы правил были найдены в VCF, а какие отсутствовали.
