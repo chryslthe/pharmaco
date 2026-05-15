@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">
+<style>.title{font:700 24px Arial;fill:#172033}.axis{font:13px Arial;fill:#39465a}.label{font:14px Arial;fill:#172033}.bar1{fill:#2f80ed}.bar2{fill:#27ae60}.bar3{fill:#f2994a}.bar4{fill:#9b51e0}.grid{stroke:#e5e9f0;stroke-width:1}</style>
+<rect width="900" height="420" fill="#fff"/>
+<text x="32" y="38" class="title">Actionability summary (demo)</text>
+<line x1="120" y1="350" x2="820" y2="350" stroke="#9aa4b2"/>
+<line x1="120" y1="80" x2="120" y2="350" stroke="#9aa4b2"/>
+<line x1="120" y1="290" x2="820" y2="290" class="grid"/><line x1="120" y1="230" x2="820" y2="230" class="grid"/><line x1="120" y1="170" x2="820" y2="170" class="grid"/><line x1="120" y1="110" x2="820" y2="110" class="grid"/>
+<rect x="165" y="140" width="110" height="210" class="bar1"/><rect x="330" y="200" width="110" height="150" class="bar2"/><rect x="495" y="260" width="110" height="90" class="bar3"/><rect x="660" y="290" width="110" height="60" class="bar4"/>
+<text x="178" y="374" class="label">actionable</text><text x="352" y="374" class="label">standard</text><text x="510" y="374" class="label">incomplete</text><text x="658" y="374" class="label">not assessed</text>
+<text x="203" y="132" class="label">7</text><text x="370" y="192" class="label">5</text><text x="535" y="252" class="label">3</text><text x="700" y="282" class="label">2</text>
+</svg>

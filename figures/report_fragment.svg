@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360">
+<style>.title{font:700 24px Arial;fill:#172033}.sub{font:14px Arial;fill:#5b667a}.h{font:700 14px Arial;fill:#fff}.c{font:13px Arial;fill:#172033}.small{font:12px Arial;fill:#4d5b70}.head{fill:#1f3b57}.row1{fill:#f6f8fb}.row2{fill:#fff}.line{stroke:#d8dee9;stroke-width:1}</style>
+<rect width="1200" height="360" fill="#ffffff"/>
+<text x="28" y="38" class="title">Demo personal pharmacogenetic report fragment</text>
+<text x="28" y="62" class="sub">Research prototype; not for clinical decision-making</text>
+<rect x="28" y="85" width="1144" height="34" class="head"/>
+<text x="42" y="107" class="h">Sample</text><text x="150" y="107" class="h">Drug</text><text x="280" y="107" class="h">Gene</text><text x="390" y="107" class="h">Diplotype/status</text><text x="610" y="107" class="h">Phenotype</text><text x="825" y="107" class="h">Actionability</text><text x="965" y="107" class="h">Detected markers</text>
+<rect x="28" y="119" width="1144" height="66" class="row1"/><rect x="28" y="185" width="1144" height="66" class="row2"/><rect x="28" y="251" width="1144" height="66" class="row1"/>
+<text x="42" y="148" class="c">HG00367</text><text x="150" y="148" class="c">Clopidogrel</text><text x="280" y="148" class="c">CYP2C19</text><text x="390" y="148" class="c">*1/*2</text><text x="610" y="148" class="c">Intermediate Metabolizer</text><text x="825" y="148" class="c">actionable</text><text x="965" y="148" class="small">rs4244285 *2 GT=0|1</text>
+<text x="42" y="214" class="c">HG00367</text><text x="150" y="214" class="c">Warfarin</text><text x="280" y="214" class="c">VKORC1</text><text x="390" y="214" class="c">rs9923231 GT=1|0</text><text x="610" y="214" class="c">Sensitive (low dose)</text><text x="825" y="214" class="c">actionable</text><text x="965" y="214" class="small">rs9923231 copies=1</text>
+<text x="42" y="280" class="c">HG00367</text><text x="150" y="280" class="c">Allopurinol</text><text x="280" y="280" class="c">HLA-B</text><text x="390" y="280" class="c">proxy-negative</text><text x="610" y="280" class="c">reference-like</text><text x="825" y="280" class="c">incomplete</text><text x="965" y="280" class="small">proxy SNPs; LOW confidence</text>
+<rect x="28" y="85" width="1144" height="232" fill="none" class="line"/>
+</svg>

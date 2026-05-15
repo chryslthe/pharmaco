@@ -1,0 +1,5 @@
+sample,drug,gene,diplotype_or_status,phenotype,actionability,recommendation,detected_markers,coverage
+HG00367,Clopidogrel,CYP2C19,*1/*2,Intermediate Metabolizer,actionable,Рассмотреть альтернативный антитромбоцитарный препарат или усиленный мониторинг.,rs4244285 *2 GT=0|1 copies=1,covered: 3; missing: 0
+HG00367,Warfarin,VKORC1,"-1639G>A (rs9923231, GT=1|0)",Sensitive (low dose),actionable,Сниженная потребность в дозе; учитывать совместно с CYP2C9 и клиническими факторами.,rs9923231 GT=1|0 copies=1,covered: 1; missing: 0
+HG00367,Allopurinol,HLA-B,HLA-B*58:01 proxy-negative by observed proxies,normal/reference-like or no risk marker detected,incomplete,Proxy SNP не заменяют прямое HLA typing; результат low confidence.,rs2734583 A/A; rs3099844 C/C,covered: 2; missing: 1; Confidence: LOW
+HG01061,Efavirenz,CYP2B6,*6/*6,Poor Metabolizer,actionable,Повышенный риск токсичности; требуется клинический мониторинг и проверка дозирования.,rs3745274 *6 GT=1|1 copies=2,covered: 2; missing: 0

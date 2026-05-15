@@ -1,0 +1,16 @@
+{
+  "created_at": "2026-05-15T04:22:39.307284+00:00",
+  "assembly": "GRCh38",
+  "mode": "demo repository artifact",
+  "inputs": [
+    "input/Pharma_subset.vcf",
+    "input/dataset_full.csv",
+    "input/PharmaVEP_final.csv"
+  ],
+  "outputs": [
+    "outputs/personal_pharmacogenetic_report_demo.csv",
+    "outputs/variant_coverage_report_demo.csv",
+    "outputs/pharmacogenetic_report_demo.html"
+  ],
+  "note": "Large 1kG VCF is intentionally not committed; use the notebook paths to run full analysis locally or in Colab."
+}

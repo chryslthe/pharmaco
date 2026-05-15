@@ -1,0 +1,5 @@
+pandas
+pydantic
+jinja2
+matplotlib
+seaborn

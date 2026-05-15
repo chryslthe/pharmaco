@@ -1,0 +1,5 @@
+rsid,gene,drug,status,present_in_vcf,coverage_status
+rs4244285,CYP2C19,Clopidogrel,resolved,true,covered
+rs9923231,VKORC1,Warfarin,resolved,true,covered
+rs9263726,HLA-B,Allopurinol,resolved,false,missing
+rs2734583,HLA-B,Allopurinol,resolved,true,proxy_covered

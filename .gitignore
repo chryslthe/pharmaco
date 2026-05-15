@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Large local genomic files
+*.vcf.gz
+1kG_Full_dataset.vcf
+
+# Notebook checkpoints
+.ipynb_checkpoints/

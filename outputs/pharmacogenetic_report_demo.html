@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo pharmacogenetic report</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 32px; color: #172033; }
+h1 { margin-bottom: 4px; }
+.note { color: #8a1f35; font-weight: 700; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { background: #1f3b57; color: white; text-align: left; padding: 8px; }
+td { border: 1px solid #d8dee9; padding: 8px; vertical-align: top; }
+tr:nth-child(even) { background: #f6f8fb; }
+</style>
+</head>
+<body>
+<h1>Personal pharmacogenetic report</h1>
+<p class="note">Research prototype; not for clinical decision-making.</p>
+<table><thead><tr><th>sample</th><th>drug</th><th>gene</th><th>diplotype_or_status</th><th>phenotype</th><th>actionability</th><th>recommendation</th><th>detected_markers</th><th>coverage</th></tr></thead><tbody><tr><td>HG00367</td><td>Clopidogrel</td><td>CYP2C19</td><td>*1/*2</td><td>Intermediate Metabolizer</td><td>actionable</td><td>Рассмотреть альтернативный антитромбоцитарный препарат или усиленный мониторинг.</td><td>rs4244285 *2 GT=0|1 copies=1</td><td>covered: 3; missing: 0</td></tr>
+<tr><td>HG00367</td><td>Warfarin</td><td>VKORC1</td><td>-1639G&gt;A (rs9923231, GT=1|0)</td><td>Sensitive (low dose)</td><td>actionable</td><td>Сниженная потребность в дозе; учитывать совместно с CYP2C9 и клиническими факторами.</td><td>rs9923231 GT=1|0 copies=1</td><td>covered: 1; missing: 0</td></tr>
+<tr><td>HG00367</td><td>Allopurinol</td><td>HLA-B</td><td>HLA-B*58:01 proxy-negative by observed proxies</td><td>normal/reference-like or no risk marker detected</td><td>incomplete</td><td>Proxy SNP не заменяют прямое HLA typing; результат low confidence.</td><td>rs2734583 A/A; rs3099844 C/C</td><td>covered: 2; missing: 1; Confidence: LOW</td></tr>
+<tr><td>HG01061</td><td>Efavirenz</td><td>CYP2B6</td><td>*6/*6</td><td>Poor Metabolizer</td><td>actionable</td><td>Повышенный риск токсичности; требуется клинический мониторинг и проверка дозирования.</td><td>rs3745274 *6 GT=1|1 copies=2</td><td>covered: 2; missing: 0</td></tr></tbody></table>
+</body></html>
