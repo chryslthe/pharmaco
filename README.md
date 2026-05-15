@@ -165,24 +165,6 @@ HTML-отчет, который можно открыть в браузере.
 - `actionable_incomplete` — потенциально значимый результат найден, но оценка неполная;
 - `not_assessed` — ген или маркер невозможно надежно оценить по имеющимся данным.
 
-## Структура репозитория
-
-```text
-.
-├── README.md
-├── dataset_full.csv
-├── PharmaVEP_final.csv
-├── pharmavep_pycharm.py
-├── requirements_pycharm.txt
-└── outputs/
-    ├── personal_pharmacogenetic_report_full.csv
-    ├── variant_coverage_report.csv
-    ├── rules_used.csv
-    ├── run_config.json
-    ├── methods_summary.md
-    ├── pharmacogenetic_report.html
-    └── figures/
-```
 
 ## Ограничения
 
