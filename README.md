@@ -2,9 +2,11 @@
 
 Прототип фармакогенетического интерпретатора, который по VCF-файлу пациента или группы пациентов и собственной базе фармакогенетических правил формирует персональный отчет о возможных особенностях ответа на лекарственные препараты.
 
-Проект был разработан для хакатон-кейса «Геномный фармацевт: интерпретатор лекарственного ответа по VCF». Логика пайплайна похожа на PharmCAT, но база правил собирается самостоятельно и используется внутри собственного интерпретатора.
+Проект был разработан для хакатон-кейса **«Геномный фармацевт: интерпретатор лекарственного ответа по VCF»**. Логика пайплайна похожа на PharmCAT, но база правил собирается самостоятельно и используется внутри собственного интерпретатора.
 
-> Research prototype; not for clinical decision-making.
+> **Research prototype; not for clinical decision-making.**
+
+![Demo report fragment](figures/report_fragment.svg)
 
 ## Идея проекта
 
@@ -18,178 +20,165 @@
 VCF -> variants -> star alleles / diplotypes -> phenotypes -> drug recommendations -> report
 ```
 
-## Что делает пайплайн
-
-Пайплайн принимает:
-
-- VCF-файл с генотипами образцов;
-- таблицу фармакогенетических правил `dataset_full.csv`;
-- таблицу аннотаций вариантов `PharmaVEP_final.csv`;
-- список лекарств для анализа, если нужно ограничить интерпретацию.
-
-На выходе формируются:
-
-- персональный фармакогенетический отчет по каждому образцу;
-- найденные фармакогенетические варианты;
-- предсказанные star alleles и diplotypes;
-- функциональные phenotypes;
-- рекомендации по препаратам;
-- отчет о покрытии вариантов в VCF;
-- таблица использованных правил;
-- HTML-отчет;
-- визуализации по препаратам, генам и типам рекомендаций;
-- `run_config.json` с параметрами запуска;
-- `methods_summary.md` с описанием метода и ограничений.
-
-## Логика решения
-
-Основная задача состояла в том, чтобы соединить клинические фармакогенетические знания с реальными генотипическими данными.
-
-1. Собрать базу правил: для каждого препарата указать ген, вариант или star allele, rsID, функциональный эффект, phenotype и рекомендацию.
-2. Подготовить координаты вариантов: так как в VCF варианты могут быть записаны не через rsID, а через координаты, используется таблица `PharmaVEP_final.csv`, чтобы сопоставить rsID с `CHROM:POS:REF:ALT`.
-3. Прочитать VCF: пайплайн проходит по VCF и извлекает только те варианты, которые нужны для фармакогенетической интерпретации.
-4. Определить генотипы: для каждого пациента определяется, есть ли альтернативный аллель, сколько копий варианта найдено и какой генотип записан в VCF.
-5. Сопоставить варианты со star alleles: если вариант из VCF соответствует правилу в базе, код определяет наличие соответствующей star allele.
-6. Собрать diplotype: для каждого гена код собирает две аллели, например `*1/*2`, `*2/*2`, `*1/*17`.
-7. Перевести diplotype в phenotype: diplotype интерпретируется как functional status, например normal, intermediate, poor или rapid metabolizer.
-8. Связать phenotype с лекарством: на основе gene-drug rules формируется рекомендация: стандартная терапия, снижение дозы, выбор альтернативного препарата, усиленный мониторинг или предупреждение о риске.
-9. Сформировать отчет: итоговый отчет показывает по каждому пациенту, препарату и гену найденные маркеры, phenotype, actionability и рекомендацию.
-
-## Как определяются star alleles и diplotypes
-
-В текущей версии star alleles определяются marker-based способом.
-
-Это значит, что пайплайн ищет диагностические варианты из таблицы правил. Например, если вариант `rs4244285` найден у пациента, он интерпретируется как маркер `CYP2C19*2`.
-
-Дальше учитывается количество копий альтернативного аллеля:
-
-- `0/0` — вариант не найден;
-- `0/1` или `1/0` — одна копия варианта;
-- `1/1` — две копии варианта.
-
-Примеры:
-
-- нет значимых вариантов -> `*1/*1`;
-- одна копия `*2` -> `*1/*2`;
-- две копии `*2` -> `*2/*2`;
-- одна копия `*2` и одна копия `*17` -> `*2/*17`.
-
-Важно: это не полноценное haplotype phasing. Пайплайн не всегда реконструирует, на какой именно хромосоме находится каждый вариант. Поэтому сложные star alleles, CNV и структурные варианты отмечены как ограничения прототипа.
-
-## HLA-B и allopurinol
-
-Для HLA-B*58:01, связанного с риском тяжелых кожных реакций на аллопуринол, прямое определение по обычному SNP-VCF затруднено.
-
-В проекте реализован proxy-подход: используются несколько proxy SNP, которые могут быть ассоциированы с HLA-B*58:01. Такой результат помечается как low confidence, потому что proxy SNP не заменяют полноценное HLA typing.
-
-Если proxy SNP найден и risk allele присутствует, отчет помечает результат как потенциально actionable, но incomplete. Если proxy SNP найдены, но risk allele не найден, результат считается incomplete / low confidence, а не полноценным отрицательным HLA-типированием.
-
-## Входные данные
-
-### VCF-файл
-
-VCF содержит генотипы пациентов. Если VCF включает несколько образцов, пайплайн формирует отчет отдельно для каждого sample.
-
-### `dataset_full.csv`
-
-Таблица фармакогенетических правил. Основные колонки:
-
-- `Drug` — препарат;
-- `Gene` — фармакоген;
-- `Marker_type` — тип маркера: SNP, star allele, HLA allele, CNV;
-- `rsID` — идентификатор варианта;
-- `Allele` — star allele или описание варианта;
-- `Function` — функциональный эффект;
-- `Phenotype` — предсказанный фенотип;
-- `Recommendation` — рекомендация;
-- `Source` — источник правила.
-
-### PharmaVEP_final.csv
-
-`PharmaVEP_final.csv` используется в проекте как аннотационная таблица вариантов, а не как таблица пациентов.
-
-Изначально эта таблица была получена для поднабора данных на 10 образцах с помощью Ensembl Variant Effect Predictor (VEP):  
-https://www.ensembl.org/Homo_sapiens/Tools/VEP
-
-Важно, что VEP-аннотация описывает сами варианты, а не конкретных пациентов. Поэтому таблица используется как справочник соответствий между `rsID` и координатами варианта в геноме (`CHROM:POS:REF:ALT`).
-
-Это нужно потому, что в нашей базе фармакогенетических правил варианты часто указаны через `rsID`, например `rs4244285`, а в VCF они могут быть записаны только через координаты, например `chr10:94781859:G:A`.
-
-Таким образом, `PharmaVEP_final.csv` выполняет роль переводчика:
-
-`rsID из таблицы правил -> координата варианта -> поиск этого варианта в VCF`.
-
-Хотя файл был получен на примере 10 образцов, используемые координаты и rsID относятся к самим вариантам и не зависят от числа пациентов. Поэтому эти соответствия можно применять и к расширенному VCF на 110 образцов, если в нем присутствуют те же варианты.
-
-
-## Выходные данные
-
-### `personal_pharmacogenetic_report_full.csv`
-
-Главный отчет по всем пациентам. Для каждого пациента, препарата и гена содержит:
-
-- найденный diplotype или marker status;
-- phenotype;
-- actionability;
-- рекомендацию;
-- найденные маркеры;
-- покрытие вариантов.
-
-### `variant_coverage_report.csv`
-
-Отчет о том, какие варианты из базы правил были найдены в VCF, а какие отсутствовали.
-
-### `rules_used.csv`
-
-Таблица правил, реально использованных в запуске.
-
-### `methods_summary.md`
-
-Описание метода, источников данных и ограничений.
-
-### `run_config.json`
-
-Техническая информация о запуске: дата, пути к файлам, сборка генома, количество пациентов, количество правил и выходные файлы.
-
-### `pharmacogenetic_report.html`
-
-HTML-отчет, который можно открыть в браузере.
-
-## Actionability
-
-В отчете используется колонка `Actionability`:
-
-- `actionable` — найден вариант или фенотип, который может влиять на терапию;
-- `standard` — по оцененным маркерам фармакогенетических оснований для изменения терапии не найдено;
-- `incomplete` — часть данных отсутствует или метод имеет ограниченную надежность;
-- `actionable_incomplete` — потенциально значимый результат найден, но оценка неполная;
-- `not_assessed` — ген или маркер невозможно надежно оценить по имеющимся данным.
-
-
-## Ограничения
-
-Этот проект является исследовательским прототипом и не предназначен для клинического принятия решений.
-
-Основные ограничения:
-
-- не выполняется полноценное haplotype phasing;
-- сложные star alleles определяются упрощенно;
-- CNV и структурные варианты не анализируются полноценно;
-- HLA-B*58:01 оценивается через proxy SNP, а не через прямое HLA typing;
-- результат зависит от полноты `dataset_full.csv`;
-- если вариант отсутствует в VCF, это не всегда означает, что у пациента нет клинически значимого аллеля;
-- рекомендации требуют проверки по актуальным клиническим источникам CPIC, DPWG и FDA.
-
-## Сравнение с PharmCAT
-
-
-Он повторяет основную логику фармакогенетической интерпретации:
+## Repository layout
 
 ```text
-VCF -> variants -> star alleles / diplotypes -> phenotypes -> drug recommendations -> report
+.
+├── README.md
+├── requirements.txt
+├── input/
+│   ├── Pharma_subset.vcf
+│   ├── dataset_full.csv
+│   └── PharmaVEP_final.csv
+├── notebooks/
+│   └── final_version.ipynb
+├── src/
+│   └── pharmavep_pycharm.py
+├── outputs/
+│   ├── personal_pharmacogenetic_report_demo.csv
+│   ├── variant_coverage_report_demo.csv
+│   ├── pharmacogenetic_report_demo.html
+│   ├── methods_summary.md
+│   └── run_config.json
+└── figures/
+    ├── report_fragment.svg
+    └── actionability_summary.svg
 ```
 
+The repository contains a **small demo input VCF** and demo outputs. The full 1kG VCF used during development is not committed because of file size.
 
-## Краткое описание
+## What the pipeline does
+
+The pipeline accepts:
+
+- a VCF file with patient genotypes;
+- a manually curated pharmacogenetic rule table `dataset_full.csv`;
+- a variant annotation table `PharmaVEP_final.csv`;
+- optionally, a selected list of drugs for analysis.
+
+It produces:
+
+- a personal pharmacogenetic report for each sample;
+- detected pharmacogenetic markers;
+- simplified star allele and diplotype calls;
+- functional phenotypes;
+- drug recommendations;
+- variant coverage report;
+- HTML report;
+- visualizations;
+- run metadata and methods summary.
+
+## Pipeline steps
+
+1. **Load inputs**: VCF, pharmacogenetic rules and VEP annotation table.
+2. **Normalize rules**: parse drug, gene, rsID, marker type, allele, phenotype, recommendation and source.
+3. **Map rsID to coordinates**: use `PharmaVEP_final.csv` to convert rule rsIDs into `CHROM:POS:REF:ALT` keys.
+4. **Parse VCF**: scan the VCF and keep only target pharmacogenetic variants.
+5. **Call genotypes**: for every sample, read `GT` values such as `0/0`, `0/1`, `1/1`.
+6. **Match variants to star alleles**: connect detected variants with rules such as `rs4244285 -> CYP2C19*2`.
+7. **Infer diplotypes**: build simplified diplotypes such as `*1/*2`, `*2/*2`, `*1/*17`.
+8. **Predict phenotypes**: translate diplotypes into functional phenotypes such as normal, intermediate, poor or rapid metabolizer.
+9. **Attach recommendations**: combine phenotype and drug-specific rules to produce dosing, monitoring or alternative therapy recommendations.
+10. **Report coverage**: mark whether required variants were found in the VCF or missing.
+11. **Generate outputs**: save CSV, HTML, figures, methods and run configuration.
+
+## How star alleles and diplotypes are inferred
+
+The current version uses a **marker-based** approach.
+
+For example, if the rule table contains:
+
+```text
+rs4244285 -> CYP2C19*2
+```
+
+and the VCF contains this variant for a sample, the pipeline interprets the detected alternative allele as evidence for `CYP2C19*2`.
+
+Genotypes are interpreted as:
+
+- `0/0`: no alternate allele detected;
+- `0/1` or `1/0`: one copy of the alternate allele;
+- `1/1`: two copies of the alternate allele.
+
+Examples:
+
+- no significant variants -> `*1/*1`;
+- one copy of `*2` -> `*1/*2`;
+- two copies of `*2` -> `*2/*2`;
+- one copy of `*2` and one copy of `*17` -> `*2/*17`.
+
+This is not full haplotype phasing. Complex star alleles, CNVs and structural variants are marked as limitations of the prototype.
+
+## HLA-B and allopurinol
+
+Direct HLA-B*58:01 typing is difficult from a simple SNP VCF because the HLA region is highly polymorphic and structurally complex.
+
+For this prototype, HLA-B*58:01 is handled with a low-confidence proxy SNP approach. The pipeline checks selected proxy SNPs that may be associated with HLA-B*58:01. Results are marked as incomplete because proxy SNPs do not replace direct HLA typing.
+
+## Demo outputs
+
+Demo output files are stored in `outputs/`:
+
+- `personal_pharmacogenetic_report_demo.csv`: compact example of the final patient-level report;
+- `variant_coverage_report_demo.csv`: example coverage table;
+- `pharmacogenetic_report_demo.html`: example HTML report;
+- `methods_summary.md`: method description;
+- `run_config.json`: reproducibility metadata.
+
+Figures are stored in `figures/`:
+
+![Actionability summary](figures/actionability_summary.svg)
+
+## PharmCAT comparison plan
+
+A suggested validation step is to run a small PharmCAT demo VCF and compare its output with this prototype on the same or similar variants.
+
+Official PharmCAT examples are available here:
+
+- [PharmCAT Examples](https://pharmcat.org/examples/)
+- [PharmCAT How It Works](https://pharmcat.org/methods/)
+
+The comparison should focus on:
+
+- which variants were detected;
+- which diplotypes were called;
+- which phenotypes were assigned;
+- whether recommendations are directionally consistent;
+- where our prototype differs because it uses marker-based matching instead of full PharmCAT named allele matching.
+
+## Future work
+
+The current implementation is a notebook/prototype. The next engineering step is to package it as a proper command-line tool:
+
+```text
+pharmavep run   --vcf input/sample.vcf   --rules input/dataset_full.csv   --annotation input/PharmaVEP_final.csv   --out outputs/
+```
+
+Planned improvements:
+
+- full CLI interface;
+- cleaner package structure;
+- automated tests;
+- configuration file support;
+- stronger validation of input files;
+- optional PharmCAT benchmark mode;
+- better support for phasing, CNV and structural variants;
+- direct HLA typing integration or external HLA typing input.
+
+## Limitations
+
+This project is a research prototype and is not intended for clinical decision-making.
+
+Main limitations:
+
+- no full haplotype phasing;
+- simplified marker-based star allele matching;
+- no full CNV or structural variant calling;
+- HLA-B*58:01 is estimated through proxy SNPs, not direct HLA typing;
+- interpretation depends on the completeness of `dataset_full.csv`;
+- absence of a variant in VCF does not always mean absence of a clinically relevant allele;
+- recommendations require verification against current CPIC, DPWG, FDA or other clinical sources.
+
+## Short description
 
 PharmCAT-like pharmacogenetic VCF interpreter for hackathon: extracts clinically relevant PGx variants, infers simplified star alleles, diplotypes and phenotypes, and generates personalized drug response reports.
